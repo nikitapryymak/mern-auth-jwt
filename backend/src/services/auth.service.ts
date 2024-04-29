@@ -72,7 +72,7 @@ export const createAccount = async (data: CreateAccountParams) => {
   // create session
   const session = await SessionModel.create({
     userId: user._id,
-    userAgens: data.userAgent,
+    userAgent: data.userAgent,
     createdAt: new Date(),
   });
 
