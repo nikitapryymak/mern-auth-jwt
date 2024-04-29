@@ -23,6 +23,13 @@ app.use(
 );
 app.use(cookieParser());
 
+// health check
+app.get("/", (_, res) => {
+  return res.status(200).json({
+    status: "healthy",
+  });
+});
+
 // auth routes
 app.use("/auth", authRoutes);
 

@@ -1,7 +1,10 @@
 import AppErrorCodes from "../constants/appErrorCodes";
-import { CREATED, NOT_FOUND, OK, UNAUTHORIZED } from "../constants/http";
+import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
 import SessionModel from "../models/session.model";
 import {
+  CreateAccountParams,
+  LoginParams,
+  ResetPasswordParams,
   createAccount,
   loginUser,
   refreshUserAccessToken,
@@ -25,13 +28,11 @@ import {
   resetPasswordSchema,
   verificationCodeSchema,
 } from "./auth.schemas";
-import VerificationCodeTypes from "../constants/verificationCodeTypes";
-import VerificationCodeModel from "../models/verificationCode.model";
 
 const { InvalidRefreshToken, NotFound } = AppErrorCodes;
 
 export const registerHandler = catchErrors(async (req, res) => {
-  const request = validateRequest(registerSchema, {
+  const request = validateRequest<CreateAccountParams>(registerSchema, {
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -42,7 +43,7 @@ export const registerHandler = catchErrors(async (req, res) => {
 });
 
 export const loginHandler = catchErrors(async (req, res) => {
-  const request = validateRequest(loginSchema, {
+  const request = validateRequest<LoginParams>(loginSchema, {
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -55,8 +56,8 @@ export const loginHandler = catchErrors(async (req, res) => {
 });
 
 export const logoutHandler = catchErrors(async (req, res) => {
-  const { accessToken } = req.cookies;
-  const { payload } = verifyToken(accessToken);
+  const accessToken = req.cookies.accessToken as string | undefined;
+  const { payload } = verifyToken(accessToken || "");
 
   if (payload) {
     // remove session from db
@@ -70,7 +71,7 @@ export const logoutHandler = catchErrors(async (req, res) => {
 });
 
 export const refreshHandler = catchErrors(async (req, res) => {
-  const { refreshToken } = req.cookies;
+  const refreshToken = req.cookies.refreshToken as string | undefined;
   appAssert(
     refreshToken,
     InvalidRefreshToken,
@@ -86,7 +87,7 @@ export const refreshHandler = catchErrors(async (req, res) => {
 });
 
 export const verifyEmailHandler = catchErrors(async (req, res) => {
-  const verificationCode = validateRequest(
+  const verificationCode = validateRequest<string>(
     verificationCodeSchema,
     req.params.code
   );
@@ -95,25 +96,16 @@ export const verifyEmailHandler = catchErrors(async (req, res) => {
 });
 
 export const sendPasswordResetHandler = catchErrors(async (req, res) => {
-  const email = validateRequest(emailSchema, req.body.email);
+  const email = validateRequest<string>(emailSchema, req.body.email);
   await sendPasswordResetEmail(email);
   return res.status(OK).json({ message: "Password reset email sent" });
 });
 
-export const verifyPasswordResetHandler = catchErrors(async (req, res) => {
-  const code = validateRequest(verificationCodeSchema, req.params.code);
-  const verificationCode = await VerificationCodeModel.findOne({
-    _id: code,
-    type: VerificationCodeTypes.PASSWORD_RESET,
-    expiresAt: { $gt: new Date() },
-  });
-
-  appAssert(verificationCode, NotFound, "Invalid Link", NOT_FOUND);
-  return res.status(OK).json({ message: "Link is valid" });
-});
-
 export const resetPasswordHandler = catchErrors(async (req, res) => {
-  const request = validateRequest(resetPasswordSchema, req.body);
+  const request = validateRequest<ResetPasswordParams>(
+    resetPasswordSchema,
+    req.body
+  );
   await resetPassword(request);
   return clearAuthCookies(res)
     .status(OK)

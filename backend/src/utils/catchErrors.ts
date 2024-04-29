@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 
-type AsyncRequestHandler = (
+type AsyncController = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => Promise<any>;
 
 const catchErrors =
-  (controller: AsyncRequestHandler): AsyncRequestHandler =>
+  (controller: AsyncController): AsyncController =>
   async (req, res, next) => {
     try {
       await controller(req, res, next);

@@ -38,10 +38,10 @@ const {
   RateLimitExceeded,
 } = AppErrorCodes;
 
-export const createAccount = async (
-  data: Pick<UserDocument, "email" | "password"> &
-    Pick<SessionDocument, "userAgent">
-) => {
+export type CreateAccountParams = Pick<UserDocument, "email" | "password"> &
+  Pick<SessionDocument, "userAgent">;
+
+export const createAccount = async (data: CreateAccountParams) => {
   // verify email is not taken
   const existingUser = await UserModel.exists({
     email: data.email,
@@ -72,15 +72,9 @@ export const createAccount = async (
   // create session
   const session = await SessionModel.create({
     userId: user._id,
-    userAgent: data.userAgent,
+    userAgens: data.userAgent,
     createdAt: new Date(),
   });
-  appAssert(
-    session,
-    Unknown,
-    "Failed to create session",
-    INTERNAL_SERVER_ERROR
-  );
 
   // create refresh token
   const refreshToken = signToken(
@@ -96,11 +90,14 @@ export const createAccount = async (
   return { user: user.omitPassword(), accessToken, refreshToken };
 };
 
+export type LoginParams = Pick<UserDocument, "email" | "password"> &
+  Pick<SessionDocument, "userAgent">;
+
 export const loginUser = async ({
   email,
   password,
   userAgent,
-}: Pick<UserDocument, "email" | "password"> & { userAgent: string }) => {
+}: LoginParams) => {
   const user = await UserModel.findOne({ email });
   appAssert(user, NotFound, "Invalid email or password", NOT_FOUND);
 
@@ -118,16 +115,11 @@ export const loginUser = async ({
     userAgent,
     createdAt: new Date(),
   });
-  appAssert(
-    session,
-    Unknown,
-    "Failed to create session",
-    INTERNAL_SERVER_ERROR
-  );
 
   const sessionInfo: RefreshToken = {
     sessionId: session._id,
   };
+
   const refreshToken = signToken(sessionInfo, {
     secret: JWT_REFRESH_SECRET,
     expiresIn: REFRESH_TOKEN_EXP,
@@ -240,13 +232,15 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
   };
 };
 
+export type ResetPasswordParams = {
+  password: UserDocument["password"];
+  verificationCode: VerificationCodeDocument["_id"];
+};
+
 export const resetPassword = async ({
   verificationCode,
   password,
-}: {
-  verificationCode: VerificationCodeDocument["_id"];
-  password: UserDocument["password"];
-}) => {
+}: ResetPasswordParams) => {
   const validCode = await VerificationCodeModel.findOne({
     _id: verificationCode,
     type: VerificationCodeTypes.PASSWORD_RESET,

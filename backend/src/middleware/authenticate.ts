@@ -8,7 +8,7 @@ const { InvalidAccessToken } = AppErrorCodes;
 
 // wrap with catchErrors() if you need this to be async
 const authenticate: RequestHandler = (req, res, next) => {
-  const { accessToken } = req.cookies;
+  const accessToken = req.cookies.accessToken as string | undefined;
   appAssert(accessToken, InvalidAccessToken, "Not authorized", UNAUTHORIZED);
 
   const { error, payload } = verifyToken(accessToken);

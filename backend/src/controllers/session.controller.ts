@@ -28,7 +28,10 @@ export const getSessionsHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteSessionHandler = catchErrors(async (req, res) => {
-  const sessionId = validateRequest(Joi.string().required(), req.params.id);
+  const sessionId = validateRequest<string>(
+    Joi.string().required(),
+    req.params.id
+  );
   const deleted = await SessionModel.findOneAndDelete({
     _id: sessionId,
     userId: req.userId,
