@@ -1,18 +1,20 @@
 import { CookieOptions, Response } from "express";
 import { fifteenMinutesFromNow, twoWeeksFromNow } from "./date";
+import { NODE_ENV } from "../constants/env";
 
 export const REFRESH_PATH = "/auth/refresh";
+const secure = NODE_ENV !== "development";
 
 export const getAccessTokenCookieOptions = (): CookieOptions => ({
-  sameSite: "none",
-  secure: true,
+  sameSite: "strict",
+  secure,
   httpOnly: true,
   expires: fifteenMinutesFromNow(),
 });
 
 export const getRefreshTokenCookieOptions = (): CookieOptions => ({
-  sameSite: "none",
-  secure: true,
+  sameSite: "strict",
+  secure,
   httpOnly: true,
   expires: twoWeeksFromNow(),
   path: REFRESH_PATH,
