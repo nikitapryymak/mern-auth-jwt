@@ -29,8 +29,6 @@ import {
   verificationCodeSchema,
 } from "./auth.schemas";
 
-const { InvalidRefreshToken, NotFound } = AppErrorCodes;
-
 export const registerHandler = catchErrors(async (req, res) => {
   const request = validateRequest<CreateAccountParams>(registerSchema, {
     ...req.body,
@@ -74,9 +72,9 @@ export const refreshHandler = catchErrors(async (req, res) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
   appAssert(
     refreshToken,
-    InvalidRefreshToken,
+    UNAUTHORIZED,
     "Missing refresh token",
-    UNAUTHORIZED
+    AppErrorCodes.InvalidRefreshToken
   );
 
   const accessToken = await refreshUserAccessToken(refreshToken);

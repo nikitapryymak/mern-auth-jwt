@@ -5,7 +5,6 @@ import SessionModel from "../models/session.model";
 import catchErrors from "../utils/catchErrors";
 import validateRequest from "../utils/validateRequest";
 import appAssert from "../utils/appAssert";
-import { NotFound } from "../constants/appErrorCodes";
 
 export const getSessionsHandler = catchErrors(async (req, res) => {
   const sessions = await SessionModel.find(
@@ -36,6 +35,6 @@ export const deleteSessionHandler = catchErrors(async (req, res) => {
     _id: sessionId,
     userId: req.userId,
   });
-  appAssert(deleted, NotFound, "Session not found", NOT_FOUND);
+  appAssert(deleted, NOT_FOUND, "Session not found");
   return res.status(OK).json({ message: "Session removed" });
 });

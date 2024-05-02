@@ -10,9 +10,9 @@ import userRoutes from "./routes/user.route";
 import sessionRoutes from "./routes/session.route";
 import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 
-// initialize modules and middleware
 const app = express();
 
+// add middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

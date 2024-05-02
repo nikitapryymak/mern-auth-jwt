@@ -1,23 +1,23 @@
 import assert from "node:assert";
 import AppError from "./AppError";
-import { INTERNAL_SERVER_ERROR } from "../constants/http";
+import { HttpStatusCode } from "../constants/http";
 import AppErrorCodes from "../constants/appErrorCodes";
 
 type AppAssert = (
   condition: any,
-  appErrorCode: AppErrorCodes,
+  httpStatusCode: HttpStatusCode,
   message: string,
-  statusCode?: number
+  appErrorCode?: AppErrorCodes
 ) => asserts condition;
 /**
  * Asserts a condition and throws an AppError if the condition is falsy.
  */
 const appAssert: AppAssert = (
   condition,
-  appErrorCode,
+  httpStatusCode,
   message,
-  statusCode = INTERNAL_SERVER_ERROR
+  appErrorCode
 ): asserts condition =>
-  assert(condition, new AppError(appErrorCode, message, statusCode));
+  assert(condition, new AppError(httpStatusCode, message, appErrorCode));
 
 export default appAssert;
