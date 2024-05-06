@@ -1,14 +1,13 @@
-import Joi, { ValidationError } from "joi";
 import { Response, ErrorRequestHandler } from "express";
+import { z } from "zod";
 import AppError from "../utils/AppError";
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from "../constants/http";
-import AppErrorCodes from "../constants/appErrorCodes";
 import { clearAuthCookies } from "../utils/cookies";
 
-const handleValidationError = (res: Response, error: ValidationError) => {
-  const errors = error.details.map((detail) => ({
-    key: detail.context?.key,
-    message: detail.message,
+const handleZodError = (res: Response, error: z.ZodError) => {
+  const errors = error.issues.map((err) => ({
+    path: err.path.join("."),
+    message: err.message,
   }));
 
   return res.status(BAD_REQUEST).json({
@@ -18,9 +17,6 @@ const handleValidationError = (res: Response, error: ValidationError) => {
 };
 
 const handleAppError = (res: Response, error: AppError) => {
-  if (error.errorCode === AppErrorCodes.InvalidRefreshToken) {
-    clearAuthCookies(res);
-  }
   return res.status(error.statusCode).json({
     message: error.message,
     errorCode: error.errorCode,
@@ -30,8 +26,12 @@ const handleAppError = (res: Response, error: AppError) => {
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
   console.log(`PATH ${req.path}`, error);
 
-  if (error instanceof Joi.ValidationError) {
-    return handleValidationError(res, error);
+  if (req.path === "/auth/refresh") {
+    clearAuthCookies(res);
+  }
+
+  if (error instanceof z.ZodError) {
+    return handleZodError(res, error);
   }
 
   if (error instanceof AppError) {

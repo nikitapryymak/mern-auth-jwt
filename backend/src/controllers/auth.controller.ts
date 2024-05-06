@@ -1,10 +1,6 @@
-import AppErrorCodes from "../constants/appErrorCodes";
 import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
 import SessionModel from "../models/session.model";
 import {
-  CreateAccountParams,
-  LoginParams,
-  ResetPasswordParams,
   createAccount,
   loginUser,
   refreshUserAccessToken,
@@ -20,7 +16,6 @@ import {
 } from "../utils/cookies";
 import { verifyToken } from "../utils/jwt";
 import catchErrors from "../utils/catchErrors";
-import validateRequest from "../utils/validateRequest";
 import {
   emailSchema,
   loginSchema,
@@ -30,7 +25,7 @@ import {
 } from "./auth.schemas";
 
 export const registerHandler = catchErrors(async (req, res) => {
-  const request = validateRequest<CreateAccountParams>(registerSchema, {
+  const request = registerSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -41,7 +36,7 @@ export const registerHandler = catchErrors(async (req, res) => {
 });
 
 export const loginHandler = catchErrors(async (req, res) => {
-  const request = validateRequest<LoginParams>(loginSchema, {
+  const request = loginSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -70,12 +65,7 @@ export const logoutHandler = catchErrors(async (req, res) => {
 
 export const refreshHandler = catchErrors(async (req, res) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
-  appAssert(
-    refreshToken,
-    UNAUTHORIZED,
-    "Missing refresh token",
-    AppErrorCodes.InvalidRefreshToken
-  );
+  appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
   const accessToken = await refreshUserAccessToken(refreshToken);
   return res
@@ -85,26 +75,26 @@ export const refreshHandler = catchErrors(async (req, res) => {
 });
 
 export const verifyEmailHandler = catchErrors(async (req, res) => {
-  const verificationCode = validateRequest<string>(
-    verificationCodeSchema,
-    req.params.code
-  );
+  const verificationCode = verificationCodeSchema.parse(req.params.code);
+
   await verifyEmail(verificationCode);
+
   return res.status(OK).json({ message: "Email was successfully verified" });
 });
 
 export const sendPasswordResetHandler = catchErrors(async (req, res) => {
-  const email = validateRequest<string>(emailSchema, req.body.email);
+  const email = emailSchema.parse(req.body.email);
+
   await sendPasswordResetEmail(email);
+
   return res.status(OK).json({ message: "Password reset email sent" });
 });
 
 export const resetPasswordHandler = catchErrors(async (req, res) => {
-  const request = validateRequest<ResetPasswordParams>(
-    resetPasswordSchema,
-    req.body
-  );
+  const request = resetPasswordSchema.parse(req.body);
+
   await resetPassword(request);
+
   return clearAuthCookies(res)
     .status(OK)
     .json({ message: "Password was reset successfully" });

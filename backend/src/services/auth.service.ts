@@ -1,4 +1,3 @@
-import AppErrorCodes from "../constants/appErrorCodes";
 import { APP_ORIGIN, JWT_REFRESH_SECRET } from "../constants/env";
 import {
   CONFLICT,
@@ -28,8 +27,6 @@ import {
   verifyToken,
 } from "../utils/jwt";
 import { sendMail } from "../utils/sendMail";
-
-const { InvalidRefreshToken } = AppErrorCodes;
 
 export type CreateAccountParams = Pick<UserDocument, "email" | "password"> &
   Pick<SessionDocument, "userAgent">;
@@ -142,21 +139,11 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     secret: JWT_REFRESH_SECRET,
   });
 
-  appAssert(
-    payload,
-    UNAUTHORIZED,
-    "Invalid refresh token",
-    InvalidRefreshToken
-  );
+  appAssert(payload, UNAUTHORIZED, "Invalid refresh token");
 
   // get the session
   const session = await SessionModel.findById(payload.sessionId);
-  appAssert(
-    session,
-    UNAUTHORIZED,
-    "Refresh token is no longer valid",
-    InvalidRefreshToken
-  );
+  appAssert(session, UNAUTHORIZED, "Refresh token expired");
 
   // create new access token
   const accessToken = signToken({

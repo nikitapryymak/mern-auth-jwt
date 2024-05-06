@@ -1,28 +1,27 @@
-import Joi from "joi";
+import { z } from "zod";
 
-export const emailSchema = Joi.string().email().required().messages({
-  "any.only": "Please enter a valid email",
-});
-const passwordSchema = Joi.string().min(6).required();
+export const emailSchema = z.string().email().min(1).max(255);
 
-export const loginSchema = Joi.object({
+const passwordSchema = z.string().min(6).max(255);
+
+export const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  userAgent: Joi.string().optional(),
+  userAgent: z.string().optional(),
 });
 
-export const registerSchema = Joi.object({
-  email: emailSchema,
-  userAgent: Joi.string().optional(),
-  password: passwordSchema,
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match",
-  }),
-});
+export const registerSchema = loginSchema
+  .extend({
+    confirmPassword: passwordSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-export const verificationCodeSchema = Joi.string().min(1).max(24).required();
+export const verificationCodeSchema = z.string().min(1).max(24);
 
-export const resetPasswordSchema = Joi.object({
+export const resetPasswordSchema = z.object({
   password: passwordSchema,
   verificationCode: verificationCodeSchema,
 });

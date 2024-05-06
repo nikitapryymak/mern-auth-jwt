@@ -1,9 +1,7 @@
-// @ts-nocheck
-import Joi from "joi";
+import { z } from "zod";
 import { NOT_FOUND, OK } from "../constants/http";
 import SessionModel from "../models/session.model";
 import catchErrors from "../utils/catchErrors";
-import validateRequest from "../utils/validateRequest";
 import appAssert from "../utils/appAssert";
 
 export const getSessionsHandler = catchErrors(async (req, res) => {
@@ -27,10 +25,7 @@ export const getSessionsHandler = catchErrors(async (req, res) => {
 });
 
 export const deleteSessionHandler = catchErrors(async (req, res) => {
-  const sessionId = validateRequest<string>(
-    Joi.string().required(),
-    req.params.id
-  );
+  const sessionId = z.string().parse(req.params.id);
   const deleted = await SessionModel.findOneAndDelete({
     _id: sessionId,
     userId: req.userId,
