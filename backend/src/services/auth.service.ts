@@ -15,7 +15,13 @@ import VerificationCodeModel, {
 } from "../models/verificationCode.model";
 import appAssert from "../utils/appAssert";
 import { hashValue } from "../utils/bcrypt";
-import { fiveMinutesAgo, oneHourFromNow, oneYearFromNow } from "../utils/date";
+import {
+  ONE_DAY_MS,
+  fiveMinutesAgo,
+  oneHourFromNow,
+  oneYearFromNow,
+  thirtyDaysFromNow,
+} from "../utils/date";
 import {
   getPasswordResetTemplate,
   getVerifyEmailTemplate,
@@ -143,7 +149,18 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
 
   // get the session
   const session = await SessionModel.findById(payload.sessionId);
-  appAssert(session, UNAUTHORIZED, "Refresh token expired");
+  const now = Date.now();
+  appAssert(
+    session && session.expiresAt.getTime() > now,
+    UNAUTHORIZED,
+    "Session exipred"
+  );
+
+  // refresh the session if it expires in the next 24hrs
+  if (session.expiresAt.getTime() - now <= ONE_DAY_MS) {
+    session.expiresAt = thirtyDaysFromNow();
+    await session.save();
+  }
 
   // create new access token
   const accessToken = signToken({

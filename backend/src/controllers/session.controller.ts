@@ -6,7 +6,7 @@ import appAssert from "../utils/appAssert";
 
 export const getSessionsHandler = catchErrors(async (req, res) => {
   const sessions = await SessionModel.find(
-    { userId: req.userId },
+    { userId: req.userId, expiresAt: { $gt: Date.now() } },
     { _id: 1, userAgent: 1, createdAt: 1 },
     {
       sort: { createdAt: -1 },
