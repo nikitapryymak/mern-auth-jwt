@@ -12,6 +12,7 @@ import appAssert from "../utils/appAssert";
 import {
   clearAuthCookies,
   getAccessTokenCookieOptions,
+  getRefreshTokenCookieOptions,
   setAuthCookies,
 } from "../utils/cookies";
 import { verifyToken } from "../utils/jwt";
@@ -67,7 +68,12 @@ export const refreshHandler = catchErrors(async (req, res) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
   appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
-  const accessToken = await refreshUserAccessToken(refreshToken);
+  const { accessToken, newRefreshToken } = await refreshUserAccessToken(
+    refreshToken
+  );
+  if (newRefreshToken) {
+    res.cookie("refreshToken", newRefreshToken, getRefreshTokenCookieOptions());
+  }
   return res
     .status(OK)
     .cookie("accessToken", accessToken, getAccessTokenCookieOptions())

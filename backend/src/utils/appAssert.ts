@@ -17,7 +17,6 @@ const appAssert: AppAssert = (
   httpStatusCode,
   message,
   appErrorCode
-): asserts condition =>
-  assert(condition, new AppError(httpStatusCode, message, appErrorCode));
+) => assert(condition, new AppError(httpStatusCode, message, appErrorCode));
 
 export default appAssert;

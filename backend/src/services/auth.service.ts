@@ -157,10 +157,23 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   );
 
   // refresh the session if it expires in the next 24hrs
-  if (session.expiresAt.getTime() - now <= ONE_DAY_MS) {
+  const sessionNeedsRefresh = session.expiresAt.getTime() - now <= ONE_DAY_MS;
+  if (sessionNeedsRefresh) {
     session.expiresAt = thirtyDaysFromNow();
     await session.save();
   }
+
+  const newRefreshToken = sessionNeedsRefresh
+    ? signToken(
+        {
+          sessionId: session._id,
+        },
+        {
+          secret: JWT_REFRESH_SECRET,
+          expiresIn: REFRESH_TOKEN_EXP,
+        }
+      )
+    : undefined;
 
   // create new access token
   const accessToken = signToken({
@@ -168,7 +181,10 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     sessionId: session._id,
   });
 
-  return accessToken;
+  return {
+    accessToken,
+    newRefreshToken,
+  };
 };
 
 export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
