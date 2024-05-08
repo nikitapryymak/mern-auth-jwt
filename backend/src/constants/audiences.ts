@@ -1,6 +1,6 @@
-enum Audiences {
-  USER = "user",
-  ADMIN = "admin",
+const enum Audiences {
+  User = "User",
+  Admin = "Admin",
 }
 
 export default Audiences;

@@ -1,4 +1,4 @@
-import { APP_ORIGIN, JWT_REFRESH_SECRET } from "../constants/env";
+import { APP_ORIGIN } from "../constants/env";
 import {
   CONFLICT,
   INTERNAL_SERVER_ERROR,
@@ -10,9 +10,7 @@ import {
 import VerificationCodeTypes from "../constants/verificationCodeTypes";
 import SessionModel, { SessionDocument } from "../models/session.model";
 import UserModel, { UserDocument } from "../models/user.model";
-import VerificationCodeModel, {
-  VerificationCodeDocument,
-} from "../models/verificationCode.model";
+import VerificationCodeModel from "../models/verificationCode.model";
 import appAssert from "../utils/appAssert";
 import { hashValue } from "../utils/bcrypt";
 import {
@@ -27,8 +25,8 @@ import {
   getVerifyEmailTemplate,
 } from "../utils/emailTemplates";
 import {
-  REFRESH_TOKEN_EXP,
-  RefreshToken,
+  RefreshTokenPayload,
+  refreshTokenSignOptions,
   signToken,
   verifyToken,
 } from "../utils/jwt";
@@ -51,7 +49,7 @@ export const createAccount = async (data: CreateAccountParams) => {
 
   const verificationCode = await VerificationCodeModel.create({
     userId: user._id,
-    type: VerificationCodeTypes.EMAIL_VERIFICATION,
+    type: VerificationCodeTypes.EmailVerification,
     expiresAt: oneYearFromNow(),
   });
 
@@ -71,17 +69,17 @@ export const createAccount = async (data: CreateAccountParams) => {
     userAgent: data.userAgent,
   });
 
-  // create refresh token
+  // sign refresh token
   const refreshToken = signToken(
     {
       sessionId: session._id,
     },
-    {
-      secret: JWT_REFRESH_SECRET,
-      expiresIn: REFRESH_TOKEN_EXP,
-    }
+    refreshTokenSignOptions
   );
-  const accessToken = signToken({ userId: user._id, sessionId: session._id });
+  const accessToken = signToken({
+    userId: user._id,
+    sessionId: session._id,
+  });
   return { user: user.omitPassword(), accessToken, refreshToken };
 };
 
@@ -105,23 +103,22 @@ export const loginUser = async ({
     userAgent,
   });
 
-  const sessionInfo: RefreshToken = {
+  const sessionInfo: RefreshTokenPayload = {
     sessionId: session._id,
   };
 
-  const refreshToken = signToken(sessionInfo, {
-    secret: JWT_REFRESH_SECRET,
-    expiresIn: REFRESH_TOKEN_EXP,
+  const refreshToken = signToken(sessionInfo, refreshTokenSignOptions);
+  const accessToken = signToken({
+    ...sessionInfo,
+    userId,
   });
-
-  const accessToken = signToken({ ...sessionInfo, userId });
   return { user, accessToken, refreshToken };
 };
 
-export const verifyEmail = async (code: VerificationCodeDocument["_id"]) => {
+export const verifyEmail = async (code: string) => {
   const validCode = await VerificationCodeModel.findOne({
     _id: code,
-    type: VerificationCodeTypes.EMAIL_VERIFICATION,
+    type: VerificationCodeTypes.EmailVerification,
     expiresAt: { $gt: new Date() },
   });
   appAssert(validCode, NOT_FOUND, "Invalid verification code");
@@ -141,8 +138,8 @@ export const verifyEmail = async (code: VerificationCodeDocument["_id"]) => {
 };
 
 export const refreshUserAccessToken = async (refreshToken: string) => {
-  const { payload } = verifyToken<RefreshToken>(refreshToken, {
-    secret: JWT_REFRESH_SECRET,
+  const { payload } = verifyToken<RefreshTokenPayload>(refreshToken, {
+    secret: refreshTokenSignOptions.secret,
   });
 
   appAssert(payload, UNAUTHORIZED, "Invalid refresh token");
@@ -168,10 +165,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
         {
           sessionId: session._id,
         },
-        {
-          secret: JWT_REFRESH_SECRET,
-          expiresIn: REFRESH_TOKEN_EXP,
-        }
+        refreshTokenSignOptions
       )
     : undefined;
 
@@ -195,7 +189,7 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
   const fiveMinAgo = fiveMinutesAgo();
   const count = await VerificationCodeModel.countDocuments({
     userId: user._id,
-    type: VerificationCodeTypes.PASSWORD_RESET,
+    type: VerificationCodeTypes.PasswordReset,
     createdAt: { $gt: fiveMinAgo },
   });
   appAssert(
@@ -207,7 +201,7 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
   const expiresAt = oneHourFromNow();
   const verificationCode = await VerificationCodeModel.create({
     userId: user._id,
-    type: VerificationCodeTypes.PASSWORD_RESET,
+    type: VerificationCodeTypes.PasswordReset,
     expiresAt,
   });
 
@@ -233,7 +227,7 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
 
 export type ResetPasswordParams = {
   password: UserDocument["password"];
-  verificationCode: VerificationCodeDocument["_id"];
+  verificationCode: string;
 };
 
 export const resetPassword = async ({
@@ -242,7 +236,7 @@ export const resetPassword = async ({
 }: ResetPasswordParams) => {
   const validCode = await VerificationCodeModel.findOne({
     _id: verificationCode,
-    type: VerificationCodeTypes.PASSWORD_RESET,
+    type: VerificationCodeTypes.PasswordReset,
     expiresAt: { $gt: new Date() },
   });
   appAssert(validCode, UNPROCESSABLE_CONTENT, "This link is not valid");
