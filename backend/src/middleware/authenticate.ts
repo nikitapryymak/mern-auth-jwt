@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import appAssert from "../utils/appAssert";
-import AppErrorCodes from "../constants/appErrorCodes";
+import AppErrorCode from "../constants/appErrorCode";
 import { UNAUTHORIZED } from "../constants/http";
 import { verifyToken } from "../utils/jwt";
 
@@ -11,7 +11,7 @@ const authenticate: RequestHandler = (req, res, next) => {
     accessToken,
     UNAUTHORIZED,
     "Not authorized",
-    AppErrorCodes.InvalidAccessToken
+    AppErrorCode.InvalidAccessToken
   );
 
   const { error, payload } = verifyToken(accessToken);
@@ -19,7 +19,7 @@ const authenticate: RequestHandler = (req, res, next) => {
     payload,
     UNAUTHORIZED,
     error === "jwt expired" ? "Token expired" : "Invalid token",
-    AppErrorCodes.InvalidAccessToken
+    AppErrorCode.InvalidAccessToken
   );
 
   req.userId = payload.userId;

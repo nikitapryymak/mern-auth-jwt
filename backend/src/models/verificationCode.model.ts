@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { UserDocument } from "./user.model";
-import VerificationCodeTypes from "../constants/verificationCodeTypes";
+import VerificationCodeType from "../constants/verificationCodeType";
 
 export interface VerificationCodeDocument extends mongoose.Document {
   userId: UserDocument["_id"];
-  type: VerificationCodeTypes;
+  type: VerificationCodeType;
   expiresAt: Date;
   createdAt: Date;
 }

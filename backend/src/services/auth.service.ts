@@ -7,7 +7,7 @@ import {
   UNAUTHORIZED,
   UNPROCESSABLE_CONTENT,
 } from "../constants/http";
-import VerificationCodeTypes from "../constants/verificationCodeTypes";
+import VerificationCodeType from "../constants/verificationCodeType";
 import SessionModel, { SessionDocument } from "../models/session.model";
 import UserModel, { UserDocument } from "../models/user.model";
 import VerificationCodeModel from "../models/verificationCode.model";
@@ -49,7 +49,7 @@ export const createAccount = async (data: CreateAccountParams) => {
 
   const verificationCode = await VerificationCodeModel.create({
     userId: user._id,
-    type: VerificationCodeTypes.EmailVerification,
+    type: VerificationCodeType.EmailVerification,
     expiresAt: oneYearFromNow(),
   });
 
@@ -118,7 +118,7 @@ export const loginUser = async ({
 export const verifyEmail = async (code: string) => {
   const validCode = await VerificationCodeModel.findOne({
     _id: code,
-    type: VerificationCodeTypes.EmailVerification,
+    type: VerificationCodeType.EmailVerification,
     expiresAt: { $gt: new Date() },
   });
   appAssert(validCode, NOT_FOUND, "Invalid verification code");
@@ -189,7 +189,7 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
   const fiveMinAgo = fiveMinutesAgo();
   const count = await VerificationCodeModel.countDocuments({
     userId: user._id,
-    type: VerificationCodeTypes.PasswordReset,
+    type: VerificationCodeType.PasswordReset,
     createdAt: { $gt: fiveMinAgo },
   });
   appAssert(
@@ -201,7 +201,7 @@ export const sendPasswordResetEmail = async (email: UserDocument["email"]) => {
   const expiresAt = oneHourFromNow();
   const verificationCode = await VerificationCodeModel.create({
     userId: user._id,
-    type: VerificationCodeTypes.PasswordReset,
+    type: VerificationCodeType.PasswordReset,
     expiresAt,
   });
 
@@ -236,7 +236,7 @@ export const resetPassword = async ({
 }: ResetPasswordParams) => {
   const validCode = await VerificationCodeModel.findOne({
     _id: verificationCode,
-    type: VerificationCodeTypes.PasswordReset,
+    type: VerificationCodeType.PasswordReset,
     expiresAt: { $gt: new Date() },
   });
   appAssert(validCode, UNPROCESSABLE_CONTENT, "This link is not valid");
