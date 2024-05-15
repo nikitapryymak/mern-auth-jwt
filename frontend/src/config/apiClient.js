@@ -1,7 +1,7 @@
 import axios from "axios";
 import queryClient from "./queryClient";
-import { AUTH } from "../hooks/useAuth";
 import { UNAUTHORIZED } from "../constants/http.mjs";
+import { navigate } from "../lib/navigation";
 
 const options = {
   baseURL: import.meta.env.VITE_API_URL,
@@ -28,9 +28,13 @@ API.interceptors.response.use(
         await TokenRefreshClient.get("/auth/refresh");
         return TokenRefreshClient(config);
       } catch (error) {
-        // handle refresh errors
-        // this will re-render the app container and redirect to login
-        queryClient.setQueryData([AUTH], null);
+        // handle refresh errors by clearing the query cache & redirecting to login
+        queryClient.clear();
+        navigate("/login", {
+          state: {
+            redirectUrl: window.location.pathname,
+          },
+        });
       }
     }
 

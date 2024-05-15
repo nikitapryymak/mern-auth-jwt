@@ -90,7 +90,7 @@ const Login = () => {
               Sign in
             </Button>
             <Text align="center" fontSize="sm" color="text.muted">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <ChakraLink as={Link} to="/register">
                 Sign up
               </ChakraLink>

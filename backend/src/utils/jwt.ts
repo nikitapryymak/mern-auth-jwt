@@ -13,12 +13,12 @@ export type AccessTokenPayload = {
   sessionId: SessionDocument["_id"];
 };
 
-const defaults: SignOptions = {
-  audience: [Audience.User],
-};
-
 type SignOptionsAndSecret = SignOptions & {
   secret: string;
+};
+
+const defaults: SignOptions = {
+  audience: [Audience.User],
 };
 
 const accessTokenSignOptions: SignOptionsAndSecret = {

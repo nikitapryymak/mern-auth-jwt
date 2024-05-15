@@ -8,7 +8,7 @@ type Params = {
   html: string;
 };
 
-const getFromEamil = () =>
+const getFromEmail = () =>
   NODE_ENV === "development" ? "onboarding@resend.dev" : EMAIL_SENDER;
 
 const getToEmail = (to: string) =>
@@ -16,7 +16,7 @@ const getToEmail = (to: string) =>
 
 export const sendMail = async ({ to, subject, text, html }: Params) =>
   await resend.emails.send({
-    from: getFromEamil(),
+    from: getFromEmail(),
     to: getToEmail(to),
     subject,
     text,
