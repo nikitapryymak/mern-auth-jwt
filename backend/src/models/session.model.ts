@@ -9,7 +9,11 @@ export interface SessionDocument extends mongoose.Document {
 }
 
 const sessionSchema = new mongoose.Schema<SessionDocument>({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
+  userId: {
+    ref: "User",
+    type: mongoose.Schema.Types.ObjectId,
+    index: true,
+  },
   userAgent: { type: String },
   createdAt: {
     type: Date,
