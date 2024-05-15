@@ -20,11 +20,11 @@ function App() {
         <Route index element={<Profile />} />
         <Route path="settings" element={<Settings />} />
       </Route>
-      <Route path="/login" element={<Login />}></Route>
-      <Route path="/register" element={<Register />}></Route>
-      <Route path="/email/verify/:code" element={<VerifyEmail />}></Route>
-      <Route path="/password/forgot" element={<ForgotPassword />}></Route>
-      <Route path="/password/reset" element={<ResetPassword />}></Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/email/verify/:code" element={<VerifyEmail />} />
+      <Route path="/password/forgot" element={<ForgotPassword />} />
+      <Route path="/password/reset" element={<ResetPassword />} />
     </Routes>
   );
 }

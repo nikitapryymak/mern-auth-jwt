@@ -57,10 +57,7 @@ const ResetPasswordForm = ({ code }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
-                  resetUserPassword({
-                    password,
-                    verificationCode: code,
-                  })
+                  resetUserPassword({ password, verificationCode: code })
                 }
                 autoFocus
               />

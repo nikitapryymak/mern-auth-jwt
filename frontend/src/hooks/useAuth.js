@@ -10,7 +10,10 @@ const useAuth = (opts = {}) => {
     staleTime: Infinity,
     ...opts,
   });
-  return { user, ...rest };
+  return {
+    user,
+    ...rest,
+  };
 };
 
 export default useAuth;

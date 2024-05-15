@@ -57,9 +57,6 @@ const ForgotPassword = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && sendPasswordReset(email)
-                    }
                     autoFocus
                   />
                 </FormControl>

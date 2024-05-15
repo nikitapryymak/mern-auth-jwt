@@ -12,9 +12,8 @@ const useDeleteSession = (sessionId) => {
       );
     },
   });
-  return {
-    deleteSession: mutate,
-    ...rest,
-  };
+
+  return { deleteSession: mutate, ...rest };
 };
+
 export default useDeleteSession;

@@ -101,7 +101,7 @@ npm install
 Create a `.env` file at the root and add the `VITE_API_URL`. This is the URL of the backend API.
 
 ```bash
-VITE_API_URL=http://127.0.0.1:4004
+VITE_API_URL=http://localhost:4004
 ```
 
 Start the dev server

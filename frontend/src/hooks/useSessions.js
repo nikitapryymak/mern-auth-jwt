@@ -9,7 +9,7 @@ const useSessions = (opts = {}) => {
     queryFn: getSessions,
     ...opts,
   });
+
   return { sessions, ...rest };
 };
-
 export default useSessions;
