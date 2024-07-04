@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --files src/index.ts index.d.ts",
+    "dev": "ts-node-dev --poll --files src/index.ts index.d.ts",
     "start": "node index.js",
-    "build": "tsc && cp ./package.json ./dist"
+    "build": "rimraf dist && tsc"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +28,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
+    "rimraf": "^5.0.7",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
   }
