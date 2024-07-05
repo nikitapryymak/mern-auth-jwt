@@ -1,6 +1,14 @@
 name: mern-app
 
 services:
+  mongo:
+    image: mongo:7.0.12
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mern-app
   api:
     build:
       context: ./backend
@@ -14,17 +22,25 @@ services:
       - /app/node_modules
     networks:
       - mern-app
+    command: npm run dev
     depends_on:
       - mongo
-    command: npm run dev
-  mongo:
-    image: mongo:7.0.12
+  frontend:
+    build:
+      context: ./frontend
+      target: build
     ports:
-      - 27017:27017
+      - 5173:5173
+    environment:
+      - VITE_API_URL=http://localhost:4004
     volumes:
-      - mongo-data:/data/db
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - mern-app
+    command: npm run dev -- --host
+    depends_on:
+      - api
 volumes:
   mongo-data:
 networks:
