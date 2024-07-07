@@ -1,11 +1,11 @@
-# Build stage
-FROM node:18-bookworm-slim as build
+# Development stage
+FROM node:18-bookworm-slim as development
 
 WORKDIR /app
 
 COPY package*.json .
 
-RUN npm i
+RUN npm ci
 
 COPY . .
 
@@ -20,6 +20,6 @@ COPY package*.json .
 
 RUN npm ci --only=production
 
-COPY --from=build /app/dist .
+COPY --from=development /app/dist ./dist
 
-CMD ["node", "index.js"]
+CMD ["node", "dist/index.js"]

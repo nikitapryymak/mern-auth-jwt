@@ -1,0 +1,14 @@
+{
+    local_certs
+}
+
+auth.localhost {
+	root * /srv
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}
+
+api.auth.localhost {
+    reverse_proxy api:4004
+}

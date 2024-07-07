@@ -8,37 +8,25 @@ services:
     volumes:
       - mongo-data:/data/db
     networks:
-      - mern-app
+      - mern-app-prod
 
   api:
     build:
       context: ./backend
-      target: development
+      target: production
     restart: unless-stopped
     env_file:
       - ./backend/.env
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     networks:
-      - mern-app
-    command: npm run dev
+      - mern-app-prod
     depends_on:
       - mongo
 
   frontend:
     build:
       context: ./frontend
-      target: development
-    restart: unless-stopped
-    environment:
-      - VITE_API_URL=https://api.auth.localhost
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - mern-app
-    command: npm run dev -- --host
+      target: production
+    command: sh -c "while true; do sleep 1; done"
     depends_on:
       - api
 
@@ -48,11 +36,11 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./Caddyfile.dev:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - mern-app
+      - mern-app-prod
     depends_on:
       - frontend
       - api
@@ -61,6 +49,7 @@ volumes:
   mongo-data:
   caddy_data:
   caddy_config:
+
 networks:
-  mern-app:
+  mern-app-prod:
     driver: bridge
