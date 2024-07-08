@@ -30,9 +30,9 @@ services:
     build:
       context: ./frontend
       target: development
+      args:
+        VITE_API_URL: https://api.auth.localhost
     restart: unless-stopped
-    environment:
-      - VITE_API_URL=https://api.auth.localhost
     volumes:
       - ./frontend:/app
       - /app/node_modules

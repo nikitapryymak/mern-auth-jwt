@@ -1,0 +1,14 @@
+# Static File Server used in Production
+
+{
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:80 {
+    root * /srv
+    encode gzip
+    try_files {path} /index.html
+    file_server
+}

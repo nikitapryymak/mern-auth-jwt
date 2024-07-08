@@ -1,14 +1,14 @@
-{
-    local_certs
+# Production Caddyfile
+
+sidevnp.com {
+    encode gzip
+	reverse_proxy frontend:80
 }
 
-auth.localhost {
-	root * /srv
-	encode gzip
-	try_files {path} /index.html
-	file_server
+www.sidevnp.com {
+    redir https://sidevnp.com{uri} permanent
 }
 
-api.auth.localhost {
+api.sidevnp.com {
     reverse_proxy api:4004
 }

@@ -26,7 +26,11 @@ services:
     build:
       context: ./frontend
       target: production
-    command: sh -c "while true; do sleep 1; done"
+      args:
+        VITE_API_URL: https://api.sidevnp.com
+    restart: unless-stopped
+    networks:
+      - mern-app-prod
     depends_on:
       - api
 
