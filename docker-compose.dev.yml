@@ -31,7 +31,9 @@ services:
       context: ./frontend
       target: development
       args:
-        VITE_API_URL: https://api.auth.localhost
+        VITE_API_URL: https://api.${DOMAIN_NAME}
+    env_file:
+      - ./frontend/.env
     restart: unless-stopped
     volumes:
       - ./frontend:/app

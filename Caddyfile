@@ -1,14 +1,14 @@
 # Production Caddyfile
 
-sidevnp.com {
+{$DOMAIN_NAME:domain.invalid} {
     encode gzip
 	reverse_proxy frontend:80
 }
 
-www.sidevnp.com {
-    redir https://sidevnp.com{uri} permanent
+www.{$DOMAIN_NAME:domain.invalid} {
+    redir https://{$DOMAIN_NAME}.com{uri} permanent
 }
 
-api.sidevnp.com {
+api.{$DOMAIN_NAME:domain.invalid} {
     reverse_proxy api:4004
 }

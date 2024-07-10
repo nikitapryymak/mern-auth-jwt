@@ -27,7 +27,7 @@ services:
       context: ./frontend
       target: production
       args:
-        VITE_API_URL: https://api.sidevnp.com
+        VITE_API_URL: https://api.${DOMAIN_NAME}
     restart: unless-stopped
     networks:
       - mern-app-prod
@@ -39,6 +39,8 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
