@@ -12,6 +12,20 @@ www.{$DOMAIN_NAME:domain.invalid} {
 api.{$DOMAIN_NAME:domain.invalid} {
     reverse_proxy api:4004
 
+    header {
+        # enable HSTS
+        Strict-Transport-Security max-age=31536000;
+
+        # disable clients from sniffing the media type
+        X-Content-Type-Options nosniff
+
+        # clickjacking protection
+        X-Frame-Options DENY
+
+        # XSS Protection
+        X-XSS-Protection "1; mode=block"
+    }
+
     rate_limit {
         # limit requests based on IP address
         zone api_limit {
