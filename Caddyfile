@@ -11,4 +11,19 @@ www.{$DOMAIN_NAME:domain.invalid} {
 
 api.{$DOMAIN_NAME:domain.invalid} {
     reverse_proxy api:4004
+
+    rate_limit {
+        # limit requests based on IP address
+        zone api_limit {
+            key {remote_host}
+            events 100
+            window 1m
+        }
+
+        zone burst_limit {
+            key {remote_host}
+            events 20
+            window 1s
+        }
+    }
 }
