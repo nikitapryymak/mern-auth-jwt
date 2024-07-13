@@ -36,7 +36,7 @@ api.{$DOMAIN_NAME:domain.invalid} {
 
         zone burst_limit {
             key {remote_host}
-            events 20
+            events 25
             window 1s
         }
     }
