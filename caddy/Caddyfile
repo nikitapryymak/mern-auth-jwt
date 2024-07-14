@@ -13,6 +13,9 @@ api.{$DOMAIN_NAME:domain.invalid} {
     reverse_proxy api:4004
 
     header {
+        -X-Powered-By
+        -Server
+
         # enable HSTS
         Strict-Transport-Security max-age=31536000;
 
@@ -29,14 +32,18 @@ api.{$DOMAIN_NAME:domain.invalid} {
     rate_limit {
         # limit requests based on IP address
         zone api_limit {
-            key {remote_host}
+            # key {remote_host}
+            # if using Cloudflare, use the following key:
+            key {http.request.header.CF-Connecting-IP}
             events 100
             window 1m
         }
 
         zone burst_limit {
-            key {remote_host}
-            events 25
+            # key {remote_host}
+            # if using Cloudflare, use the following key:
+            key {http.request.header.CF-Connecting-IP}
+            events 20
             window 1s
         }
     }
