@@ -6,7 +6,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
     networks:
       - mern-app
 
@@ -60,7 +60,7 @@ services:
       - api
 
 volumes:
-  mongo-data:
+  mongo_data:
   caddy_data:
   caddy_config:
 networks:

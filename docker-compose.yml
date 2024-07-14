@@ -6,9 +6,9 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
     networks:
-      - mern-app-prod
+      - mern-app
 
   api:
     build:
@@ -18,7 +18,7 @@ services:
     env_file:
       - ./backend/.env
     networks:
-      - mern-app-prod
+      - mern-app
     depends_on:
       - mongo
 
@@ -30,7 +30,7 @@ services:
         VITE_API_URL: https://api.${DOMAIN_NAME}
     restart: unless-stopped
     networks:
-      - mern-app-prod
+      - mern-app
     depends_on:
       - api
 
@@ -48,16 +48,16 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - mern-app-prod
+      - mern-app
     depends_on:
       - frontend
       - api
 
 volumes:
-  mongo-data:
+  mongo_data:
   caddy_data:
   caddy_config:
 
 networks:
-  mern-app-prod:
+  mern-app:
     driver: bridge
