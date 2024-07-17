@@ -3,6 +3,8 @@ name: mern-app
 services:
   mongo:
     image: mongo:7.0.12
+    ports:
+      - 27017:27017
     volumes:
       - mongo_data:/data/db
     networks:
