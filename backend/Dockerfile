@@ -11,6 +11,8 @@ COPY . .
 
 RUN npm run build
 
+CMD ["npm", "run", "dev"]
+
 # Production stage
 FROM node:18-bookworm-slim as production
 
