@@ -39,6 +39,7 @@ services:
       - /app/node_modules
     networks:
       - mern-app
+    command: npm run dev -- --host
     depends_on:
       - api
 
