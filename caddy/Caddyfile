@@ -1,12 +1,48 @@
-{
-    local_certs
-}
-
-auth.localhost {
+{$DOMAIN_NAME:invalid} {
     encode gzip
-    reverse_proxy frontend:5173
+    reverse_proxy frontend:80
 }
 
-api.auth.localhost {
+www.{$DOMAIN_NAME:invalid} {
+	redir https://{$DOMAIN_NAME:invalid}{uri} permanent
+}
+
+api.{$DOMAIN_NAME:invalid} {
     reverse_proxy api:4004
+
+	 header {
+        -X-Powered-By
+        -Server
+
+        # enable HSTS
+        Strict-Transport-Security max-age=31536000;
+
+        # disable clients from sniffing the media type
+        X-Content-Type-Options nosniff
+
+        # clickjacking protection
+        X-Frame-Options DENY
+
+        # XSS Protection
+        X-XSS-Protection "1; mode=block"
+    }
+
+	rate_limit {
+        # limit requests based on IP address
+        zone api_limit {
+            # key {remote_host}
+            # if using Cloudflare proxy, use the following key:
+            key {http.request.header.CF-Connecting-IP}
+            events 100
+            window 1m
+        }
+
+        zone burst_limit {
+            # key {remote_host}
+            # if using Cloudflare proxy, use the following key:
+            key {http.request.header.CF-Connecting-IP}
+            events 20
+            window 1s
+        }
+    }
 }

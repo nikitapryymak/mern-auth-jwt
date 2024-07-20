@@ -3,6 +3,8 @@ name: mern-app
 services:
   mongo:
     image: mongo:7.0.12
+    ports:
+      - 27017:27017
     volumes:
       - mongo_data:/data/db
     networks:
@@ -11,9 +13,12 @@ services:
   api:
     build:
       context: ./backend
-      target: production
+      target: development
     restart: unless-stopped
     env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     networks:
       - mern-app
     depends_on:
@@ -22,25 +27,27 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: production
+      target: development
       args:
-        VITE_API_URL: https://api.${DOMAIN_NAME}
+        VITE_API_URL: https://api.auth.localhost
     restart: unless-stopped
+    env_file: ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - mern-app
+    command: npm run dev -- --host
     depends_on:
       - api
 
   caddy:
-    build:
-      context: ./caddy
-      dockerfile: Dockerfile
+    image: caddy:2-alpine
     ports:
       - 80:80
       - 443:443
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
     volumes:
+      - ./caddy/Caddyfile.dev:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     networks:
