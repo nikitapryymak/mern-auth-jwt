@@ -6,7 +6,7 @@
 }
 
 www.{$DOMAIN_NAME:domain.invalid} {
-    redir https://{$DOMAIN_NAME}.com{uri} permanent
+    redir https://{$DOMAIN_NAME}{uri} permanent
 }
 
 api.{$DOMAIN_NAME:domain.invalid} {

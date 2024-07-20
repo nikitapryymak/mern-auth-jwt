@@ -2,11 +2,11 @@
     local_certs
 }
 
-{$DOMAIN_NAME:auth.localhost} {
+auth.localhost {
     encode gzip
     reverse_proxy frontend:5173
 }
 
-api.{$DOMAIN_NAME:auth.localhost} {
+api.auth.localhost {
     reverse_proxy api:4004
 }

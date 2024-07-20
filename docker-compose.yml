@@ -42,7 +42,6 @@ services:
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     networks:
