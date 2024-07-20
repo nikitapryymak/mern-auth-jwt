@@ -77,20 +77,6 @@ cp sample.env .env
 # open .env and add your variables
 ```
 
-Start the MongoDB server (if running locally)
-
-```bash
-# using homebrew
-brew services start mongodb-community@7.0
-```
-
-Start the API server
-
-```bash
-# runs on http://localhost:4004 (default)
-npm run dev
-```
-
 Navigate to the frontend directory & install dependencies
 
 ```bash
@@ -101,15 +87,29 @@ npm install
 Create a `.env` file at the root and add the `VITE_API_URL`. This is the URL of the backend API.
 
 ```bash
-VITE_API_URL=http://localhost:4004
+VITE_API_URL=https://api.auth.localhost
 ```
 
-Start the dev server
+Navigate to the root directory and run:
 
 ```bash
-# runs on http://localhost:5173
-  npm run dev
+docker compose up
 ```
+
+This will spin up the database, api, frontend and caddy containers. You will be able to view the app locally at https://auth.localhost. You must update your hosts file to point `auth.localhost` and `api.auth.localhost` to `127.0.0.1`:
+
+```bash
+# open your hosts file (on mac)
+sudo nano /etc/hosts
+```
+
+```bash
+# add these 2 lines
+127.0.0.1 auth.localhost
+127.0.0.1 api.auth.localhost
+```
+
+You will also have to add the `root.crt` file from the Local Caddy Authority to your trust store (so your browser will trust the self-signed TLS certificate). First run the container ( `docker compose up` from the root directory). Once running, open the caddy container in Docker desktop, and navigate to the container's file browser. Find the `root.crt` under the path: `/data/caddy/pki/authorities/local/root.crt`. Download this file to your desktop, then import into your trust store (Keychain app on Mac), then manually trust this certificate. You may need to restart your browser for the changes to take effect.
 
 ### Postman Collection
 

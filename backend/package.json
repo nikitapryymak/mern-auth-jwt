@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --files src/index.ts index.d.ts",
+    "dev": "ts-node-dev --poll --files src/index.ts index.d.ts",
     "start": "node index.js",
     "build": "tsc && cp ./package.json ./dist"
   },
