@@ -6,7 +6,7 @@ const Profile = () => {
   const { email, verified, createdAt } = user;
   return (
     <Center mt={16} flexDir="column">
-      <Heading mb={4}>My Account</Heading>
+      <Heading mb={4}>My Account!!!</Heading>
       {!verified && (
         <Alert status="warning" w="fit-content" borderRadius={12} mb={3}>
           <AlertIcon />
